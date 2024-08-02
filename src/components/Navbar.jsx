@@ -26,7 +26,7 @@ const Navbar = () => {
         <div>
           <button
             onClick={handleAuthClick}
-            className="text-white text-lg font-semibold hover:text-indigo-200"
+            className="text-white text-lg font-semibold font-poppins hover:text-indigo-200"
           >
             {userLoggedIn ? "Logout" : "Login"}
           </button>

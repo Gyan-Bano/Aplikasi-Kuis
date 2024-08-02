@@ -58,7 +58,7 @@ const LoginForm = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Welcome Back</h2>
+        <h2 className="text-2xl font-bold font-poppins text-center">Welcome Back</h2>
         {errorMessage && (
           <div className="text-red-500 text-center">{errorMessage}</div>
         )}
@@ -68,24 +68,24 @@ const LoginForm = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-2 border font-poppins rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-2 border font-poppins rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
           />
           <button
             type="submit"
-            className="w-full px-4 py-2 font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-2 font-semibold font-poppins text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
             disabled={isSigningIn}
           >
             Sign In
           </button>
         </form>
-        <div className="text-center">
+        <div className="text-center font-poppins">
           <span>
             Don't have an account?{" "}
             <Link to="/register" className="text-indigo-600 hover:underline">
@@ -95,11 +95,11 @@ const LoginForm = () => {
         </div>
         <div className="relative flex items-center justify-center w-full mt-6">
           <div className="w-full border-t border-gray-300"></div>
-          <span className="absolute px-3 text-gray-500 bg-white">OR</span>
+          <span className="absolute px-3 text-gray-500 font-poppins bg-white">OR</span>
         </div>
         <button
           onClick={onGoogleSignIn}
-          className="flex items-center justify-center w-full px-4 py-2 mt-4 font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          className="flex items-center justify-center w-full px-4 py-2 mt-4 font-semibold font-poppins text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-600"
           disabled={isSigningIn}
         >
           <GoogleIcon className="mr-2" />
