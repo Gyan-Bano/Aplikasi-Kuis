@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar";
 import LoginForm from "./components/FormLogin";
 import RegisterForm from "./components/FormRegister";
 import PageHome from "./components/PageHome";
+import PrivateRoute from "./hoc/PrivateRoute";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 const App = () => {
@@ -13,7 +14,14 @@ const App = () => {
         <Routes>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/" element={<PageHome />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <PageHome />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>
