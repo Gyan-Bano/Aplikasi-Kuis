@@ -3,10 +3,13 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
 import CircularProgress from "@mui/material/CircularProgress";
+import QuizConfirmationDialog from "./QuizConfirmationDialog";
 
 const PageQuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const { userLoggedIn } = useAuth();
 
   const fetchQuizzes = async () => {
@@ -36,6 +39,21 @@ const PageQuizList = () => {
       setLoading(false);
     }
   }, [userLoggedIn]);
+
+  const handleStartQuiz = (quiz) => {
+    setSelectedQuiz(quiz);
+    console.log(quizzes);
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirm = () => {
+    setConfirmationOpen(false);
+    // Add logic to start the quiz
+  };
+
+  const handleClose = () => {
+    setConfirmationOpen(false);
+  };
 
   if (loading) {
     return (
@@ -75,13 +93,22 @@ const PageQuizList = () => {
               {quiz.description}
             </p>
             <div className="flex justify-center items-end w-full">
-              <button className="bg-indigo-600 text-white font-poppins px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
+              <button
+                onClick={() => handleStartQuiz(quiz)}
+                className="bg-indigo-600 text-white font-poppins px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300"
+              >
                 Start Quiz
               </button>
             </div>
           </div>
         ))}
       </div>
+      <QuizConfirmationDialog
+        open={confirmationOpen}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        quiz={selectedQuiz}
+      />
     </div>
   );
 };
