@@ -28,6 +28,7 @@ const PageQuizList = () => {
           id: doc.id,
           ...doc.data(),
         }));
+        console.log(quizData)
         setQuizzes(quizData);
       } catch (error) {
         console.error("Error fetching quiz data:", error);

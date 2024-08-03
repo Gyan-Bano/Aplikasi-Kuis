@@ -1,7 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const QuizResult = ({ score, answeredQuestions, totalQuestions, category }) => {
+const QuizResult = ({
+  score,
+  answeredQuestions,
+  totalQuestions,
+  category,
+  startNewAttempt,
+}) => {
   const navigate = useNavigate();
 
   return (
@@ -24,6 +30,12 @@ const QuizResult = ({ score, answeredQuestions, totalQuestions, category }) => {
           Total questions answered:{" "}
           <span className="font-bold text-indigo-600">{answeredQuestions}</span>
         </p>
+        <button
+          onClick={() => startNewAttempt()}
+          className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"
+        >
+          Start New Attempt
+        </button>
         <button
           onClick={() => navigate("/")}
           className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"

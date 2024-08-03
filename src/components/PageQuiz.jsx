@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import QuizQuestion from "./InterfaceQuizQuestion";
-import QuizResult from "./InterfaceQuizResult";
 import axios from "axios";
 import he from "he";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebase/firebase";
+import { useAuth } from "../contexts/authContext";
+import QuizQuestion from "./InterfaceQuizQuestion";
+import QuizResult from "./InterfaceQuizResult";
 
 const PageQuiz = () => {
   const location = useLocation();
   const { quiz } = location.state;
   const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
-    const saved = localStorage.getItem(`quizQuestionIndex_${quiz.id}`);
-    return saved ? parseInt(saved, 10) : 0;
-  });
-  const [score, setScore] = useState(() => {
-    const saved = localStorage.getItem(`quizScore_${quiz.id}`);
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [totalAnswersCount, setTotalAnswersCount] = useState(0);
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [answeredQuestions, setAnsweredQuestions] = useState(0);
+  const { currentUser, userLoggedIn } = useAuth();
+  const [attemptNumber, setAttemptNumber] = useState(1);
+  const navigate = useNavigate();
 
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       setLoading(true);
       const response = await axios.get(quiz.apiUrl);
@@ -35,39 +35,129 @@ const PageQuiz = () => {
         incorrect_answers: q.incorrect_answers.map((a) => he.decode(a)),
       }));
       setQuestions(decodedQuestions);
-      localStorage.setItem(
-        `quizQuestions_${quiz.id}`,
-        JSON.stringify(decodedQuestions)
-      );
       setError(null);
+    } catch (err) {
+      setError("Failed to fetch questions.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [quiz.apiUrl]);
 
-  useEffect(() => {
-    const savedQuizData = localStorage.getItem(`quizQuestions_${quiz.id}`);
-    if (savedQuizData) {
-      const parsedQuizData = JSON.parse(savedQuizData);
-      setQuestions(parsedQuizData);
-      setLoading(false);
+  const saveProgress = useCallback(
+    async (currentTimer) => {
+      if (!userLoggedIn) return;
+
+      const progressData = {
+        userId: currentUser.uid,
+        quizId: quiz.id,
+        attemptNumber: attemptNumber,
+        questions,
+        currentQuestionIndex,
+        correctAnswersCount: score,
+        incorrectAnswersCount: totalAnswersCount - score,
+        totalAnswersCount,
+        score,
+        timer: currentTimer || timer,
+        quizFinished,
+        lastUpdated: new Date(),
+      };
+
+      try {
+        const quizAttemptRef = doc(
+          db,
+          "quizAttempts",
+          `${currentUser.uid}_${quiz.id}_${attemptNumber}`
+        );
+
+        await setDoc(quizAttemptRef, progressData, { merge: true });
+        localStorage.setItem(
+          `${currentUser.uid}_${quiz.id}_${attemptNumber}`,
+          JSON.stringify(progressData)
+        );
+      } catch (error) {
+        console.error("Error saving quiz progress: ", error);
+      }
+    },
+    [
+      userLoggedIn,
+      currentUser,
+      quiz.id,
+      attemptNumber,
+      questions,
+      currentQuestionIndex,
+      score,
+      totalAnswersCount,
+      timer,
+      quizFinished,
+    ]
+  );
+
+  const getLastAttemptNumber = useCallback(async () => {
+    if (!userLoggedIn) return 1;
+
+    const quizAttemptRef = doc(
+      db,
+      "quizAttempts",
+      `${currentUser.uid}_${quiz.id}`
+    );
+    const docSnap = await getDoc(quizAttemptRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      return data.attemptNumber ? data.attemptNumber + 1 : 1;
     } else {
-      fetchQuestions();
+      return 1;
     }
-  }, [quiz.apiUrl, quiz.id]);
+  }, [userLoggedIn, currentUser, quiz.id]);
 
   useEffect(() => {
-    const savedTimer = localStorage.getItem(`quizTimer_${quiz.id}`);
-    const savedQuizFinished = localStorage.getItem(`quizFinished_${quiz.id}`);
+    const initializeAttempt = async () => {
+      const newAttemptNumber = await getLastAttemptNumber();
+      setAttemptNumber(newAttemptNumber);
+    };
 
-    if (savedTimer) {
-      setTimer(parseInt(savedTimer, 10));
+    if (userLoggedIn) {
+      initializeAttempt();
     }
+  }, [currentUser, quiz.id, userLoggedIn, getLastAttemptNumber]);
 
-    if (savedQuizFinished === "true") {
-      setQuizFinished(true);
-    }
-  }, [quiz.id]);
+  useEffect(() => {
+    const resumeQuiz = async () => {
+      if (!userLoggedIn) return;
+
+      const savedProgress = localStorage.getItem(
+        `${currentUser.uid}_${quiz.id}_${attemptNumber}`
+      );
+      if (savedProgress) {
+        const data = JSON.parse(savedProgress);
+        setQuestions(data.questions);
+        setCurrentQuestionIndex(data.currentQuestionIndex);
+        setScore(data.correctAnswersCount);
+        setTotalAnswersCount(data.totalAnswersCount);
+        setTimer(data.timer);
+        setQuizFinished(data.quizFinished);
+      } else {
+        fetchQuestions();
+      }
+
+      setLoading(false);
+    };
+
+    resumeQuiz();
+  }, [currentUser, quiz.id, attemptNumber, userLoggedIn, fetchQuestions]);
+
+  useEffect(() => {
+    const handleBeforeUnload = async () => {
+      if (!quizFinished) {
+        await saveProgress(timer);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [quizFinished, timer, saveProgress]);
 
   useEffect(() => {
     let intervalId;
@@ -75,67 +165,53 @@ const PageQuiz = () => {
       intervalId = setInterval(() => {
         setTimer((prev) => {
           const newTimer = prev - 1;
-          localStorage.setItem(`quizTimer_${quiz.id}`, newTimer.toString());
-          if (newTimer <= 0) {
-            clearInterval(intervalId);
-            setQuizFinished(true);
-            localStorage.setItem(`quizFinished_${quiz.id}`, "true");
-            return 0;
-          }
+          saveProgress(newTimer); // Save progress with the updated timer
           return newTimer;
         });
       }, 1000);
     }
     return () => clearInterval(intervalId);
-  }, [timer, quizFinished, quiz.id]);
-
-  useEffect(() => {
-    if (quizFinished) {
-      localStorage.removeItem(`quizQuestions_${quiz.id}`);
-      localStorage.removeItem(`quizTimer_${quiz.id}`);
-      localStorage.setItem(`quizFinished_${quiz.id}`, "true");
-      const finishedQuizzes = JSON.parse(
-        localStorage.getItem("finishedQuizzes") || "[]"
-      );
-      if (!finishedQuizzes.includes(quiz.id)) {
-        finishedQuizzes.push(quiz.id);
-        localStorage.setItem(
-          "finishedQuizzes",
-          JSON.stringify(finishedQuizzes)
-        );
-      }
-    }
-  }, [quizFinished, quiz.id]);
+  }, [timer, quizFinished]);
 
   const handleAnswer = (isCorrect) => {
-    setAnsweredQuestions((prev) => prev + 1);
+    setTotalAnswersCount((prev) => prev + 1);
 
     if (isCorrect) {
-      setScore((prev) => {
-        const newScore = prev + 1;
-        localStorage.setItem(`quizScore_${quiz.id}`, newScore.toString());
-        return newScore;
-      });
+      setScore((prev) => prev + 1);
     }
 
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => {
-        const newIndex = prev + 1;
-        localStorage.setItem(
-          `quizQuestionIndex_${quiz.id}`,
-          newIndex.toString()
-        );
-        return newIndex;
-      });
+      setCurrentQuestionIndex((prev) => prev + 1);
+      saveProgress(timer); // Save after each answer
     } else {
       setQuizFinished(true);
-      localStorage.setItem(`quizFinished_${quiz.id}`, "true");
+      setTotalAnswersCount(questions.length); // Set totalAnswersCount to the total number of questions
     }
+  };
+
+  // useEffect to save progress when quizFinished is set to true
+  useEffect(() => {
+    if (quizFinished) {
+      saveProgress(timer); // Save final state on quiz finish
+    }
+  }, [quizFinished]);
+
+  const startNewAttempt = async () => {
+    const newAttemptNumber = await getLastAttemptNumber();
+    setAttemptNumber(newAttemptNumber);
+
+    setQuestions([]);
+    setCurrentQuestionIndex(0);
+    setScore(0);
+    setTimer(600); // reset timer to 10 minutes
+    setQuizFinished(false);
+
+    fetchQuestions();
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
+      <div className="flex justify-center items-center h-screen">
         <CircularProgress />
       </div>
     );
@@ -149,9 +225,10 @@ const PageQuiz = () => {
     return (
       <QuizResult
         score={score}
-        answeredQuestions={answeredQuestions}
+        answeredQuestions={totalAnswersCount}
         totalQuestions={questions.length}
-        category={quiz.title}
+        category={quiz.category}
+        startNewAttempt={startNewAttempt}
       />
     );
   }
@@ -160,18 +237,14 @@ const PageQuiz = () => {
     return <div>No questions available.</div>;
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-
   return (
-    <div className="quiz-page-container">
-      <QuizQuestion
-        question={currentQuestion}
-        handleAnswer={handleAnswer}
-        currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={questions.length}
-        timer={timer}
-      />
-    </div>
+    <QuizQuestion
+      question={questions[currentQuestionIndex]}
+      handleAnswer={handleAnswer}
+      currentQuestionIndex={currentQuestionIndex}
+      totalQuestions={questions.length}
+      timer={timer}
+    />
   );
 };
 
