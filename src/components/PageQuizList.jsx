@@ -1,45 +1,62 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
+import QuizConfirmationDialog from "./DialogQuizConfirmation";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const PageQuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [selectedQuiz, setSelectedQuiz] = useState(null);
   const { userLoggedIn } = useAuth();
-
-  const fetchQuizzes = async () => {
-    if (!userLoggedIn) {
-      console.error("User is not authenticated");
-      return;
-    }
-
-    try {
-      const querySnapshot = await getDocs(collection(db, "quizzes"));
-      const quizData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setQuizzes(quizData);
-    } catch (error) {
-      console.error("Error fetching quiz data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (userLoggedIn) {
-      fetchQuizzes();
-    } else {
-      setLoading(false);
-    }
+    const fetchQuizzes = async () => {
+      if (!userLoggedIn) {
+        console.error("User is not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "quizzes"));
+        const quizData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log(quizData)
+        setQuizzes(quizData);
+      } catch (error) {
+        console.error("Error fetching quiz data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizzes();
   }, [userLoggedIn]);
+
+  const handleStartQuiz = (quiz) => {
+    setSelectedQuiz(quiz);
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirm = () => {
+    setConfirmationOpen(false);
+    navigate(`/quiz/${selectedQuiz.id}`, { state: { quiz: selectedQuiz } });
+  };
+
+  const handleClose = () => {
+    setConfirmationOpen(false);
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
         <CircularProgress />
       </div>
     );
@@ -75,13 +92,22 @@ const PageQuizList = () => {
               {quiz.description}
             </p>
             <div className="flex justify-center items-end w-full">
-              <button className="bg-indigo-600 text-white font-poppins px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">
+              <button
+                onClick={() => handleStartQuiz(quiz)}
+                className="bg-indigo-600 text-white font-semibold font-poppins px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300"
+              >
                 Start Quiz
               </button>
             </div>
           </div>
         ))}
       </div>
+      <QuizConfirmationDialog
+        open={confirmationOpen}
+        onClose={handleClose}
+        onConfirm={handleConfirm}
+        quiz={selectedQuiz}
+      />
     </div>
   );
 };

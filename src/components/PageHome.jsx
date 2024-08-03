@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import panaSvg from "../assets/pana.svg";
 import LoginForm from "./FormLogin";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const PageHome = () => {
   const { userLoggedIn, currentUser } = useAuth();
   const [isLoginFormVisible, setLoginFormVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500); 
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePlayNowClick = () => {
     if (!userLoggedIn) {
@@ -22,6 +32,14 @@ const PageHome = () => {
   };
 
   const displayName = currentUser?.email.split("@")[0];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-0 bg-white flex items-start justify-center">
