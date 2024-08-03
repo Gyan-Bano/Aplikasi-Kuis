@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
+
 import axios from "axios";
 import he from "he";
 
@@ -7,8 +9,16 @@ const PageQuiz = () => {
   const location = useLocation();
   const { quiz } = location.state;
   const [questions, setQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [score, setScore] = useState(0);
+
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
+    const saved = localStorage.getItem(`quizQuestionIndex_${quiz.id}`);
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  const [score, setScore] = useState(() => {
+    const saved = localStorage.getItem(`quizScore_${quiz.id}`);
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -16,18 +26,15 @@ const PageQuiz = () => {
   const navigate = useNavigate();
 
   const fetchQuestions = async () => {
-    console.log("Fetching questions from API:", quiz.apiUrl);
     try {
       setLoading(true);
       const response = await axios.get(quiz.apiUrl);
-      console.log("API Response:", response);
       const decodedQuestions = response.data.results.map((q) => ({
         ...q,
         question: he.decode(q.question),
         correct_answer: he.decode(q.correct_answer),
         incorrect_answers: q.incorrect_answers.map((a) => he.decode(a)),
       }));
-      console.log("Decoded Questions:", decodedQuestions);
       setQuestions(decodedQuestions);
       localStorage.setItem(
         `quizQuestions_${quiz.id}`,
@@ -40,42 +47,54 @@ const PageQuiz = () => {
   };
 
   useEffect(() => {
-    console.log("useEffect triggered for fetching questions");
     const savedQuizData = localStorage.getItem(`quizQuestions_${quiz.id}`);
-    console.log(savedQuizData);
     if (savedQuizData) {
-      console.log("Found saved quiz data in localStorage");
       const parsedQuizData = JSON.parse(savedQuizData);
       setQuestions(parsedQuizData);
-      console.log(questions);
       setLoading(false);
     } else {
-      console.log("No saved quiz data, fetching from API");
       fetchQuestions();
     }
   }, [quiz.apiUrl, quiz.id]);
+
+  useEffect(() => {
+    const savedTimer = localStorage.getItem(`quizTimer_${quiz.id}`);
+    const savedQuizFinished = localStorage.getItem(`quizFinished_${quiz.id}`);
+
+    if (savedTimer) {
+      setTimer(parseInt(savedTimer, 10));
+    }
+
+    if (savedQuizFinished === "true") {
+      setQuizFinished(true);
+    }
+  }, [quiz.id]);
 
   useEffect(() => {
     let intervalId;
     if (timer > 0 && !quizFinished) {
       intervalId = setInterval(() => {
         setTimer((prev) => {
-          if (prev <= 1) {
+          const newTimer = prev - 1;
+          localStorage.setItem(`quizTimer_${quiz.id}`, newTimer.toString());
+          if (newTimer <= 0) {
             clearInterval(intervalId);
             setQuizFinished(true);
+            localStorage.setItem(`quizFinished_${quiz.id}`, "true");
             return 0;
           }
-          return prev - 1;
+          return newTimer;
         });
       }, 1000);
     }
     return () => clearInterval(intervalId);
-  }, [timer, quizFinished]);
+  }, [timer, quizFinished, quiz.id]);
 
   useEffect(() => {
     if (quizFinished) {
-      console.log("Quiz finished, removing quiz data from localStorage");
       localStorage.removeItem(`quizQuestions_${quiz.id}`);
+      localStorage.removeItem(`quizTimer_${quiz.id}`);
+      localStorage.setItem(`quizFinished_${quiz.id}`, "true");
       const finishedQuizzes = JSON.parse(
         localStorage.getItem("finishedQuizzes") || "[]"
       );
@@ -91,18 +110,34 @@ const PageQuiz = () => {
 
   const handleAnswer = (isCorrect) => {
     if (isCorrect) {
-      setScore((prev) => prev + 1);
+      setScore((prev) => {
+        const newScore = prev + 1;
+        localStorage.setItem(`quizScore_${quiz.id}`, newScore.toString());
+        return newScore;
+      });
     }
 
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+      setCurrentQuestionIndex((prev) => {
+        const newIndex = prev + 1;
+        localStorage.setItem(
+          `quizQuestionIndex_${quiz.id}`,
+          newIndex.toString()
+        );
+        return newIndex;
+      });
     } else {
       setQuizFinished(true);
+      localStorage.setItem(`quizFinished_${quiz.id}`, "true");
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress />
+      </div>
+    );
   }
 
   if (error) {
@@ -125,7 +160,6 @@ const PageQuiz = () => {
     );
   }
 
-  console.log(questions.length);
   if (questions.length === 0) {
     return <div>No questions available.</div>;
   }
