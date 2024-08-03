@@ -30,18 +30,20 @@ const QuizResult = ({
           Total questions answered:{" "}
           <span className="font-bold text-indigo-600">{answeredQuestions}</span>
         </p>
-        <button
-          onClick={() => startNewAttempt()}
-          className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"
-        >
-          Start New Attempt
-        </button>
-        <button
-          onClick={() => navigate("/")}
-          className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"
-        >
-          Go Back to Home
-        </button>
+        <div className="flex space-x-4 justify-center">
+          <button
+            onClick={startNewAttempt}
+            className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"
+          >
+            Start New Attempt
+          </button>
+          <button
+            onClick={() => navigate("/")}
+            className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg mt-6 hover:bg-indigo-700 transition duration-200"
+          >
+            Go Back to Home
+          </button>
+        </div>
       </div>
     </div>
   );

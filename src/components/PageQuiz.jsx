@@ -93,14 +93,17 @@ const PageQuiz = () => {
   );
 
   const getLastAttemptNumber = useCallback(async () => {
+    console.log("=====");
     if (!userLoggedIn) return 1;
 
     const quizAttemptRef = doc(
       db,
       "quizAttempts",
-      `${currentUser.uid}_${quiz.id}`
+      `${currentUser.uid}_${quiz.id}_${attemptNumber}`
     );
+    console.log(quizAttemptRef);
     const docSnap = await getDoc(quizAttemptRef);
+    console.log(docSnap);
 
     if (docSnap.exists()) {
       const data = docSnap.data();
@@ -197,7 +200,11 @@ const PageQuiz = () => {
   }, [quizFinished]);
 
   const startNewAttempt = async () => {
+    console.log("Starting new attempt..."); // Debugging statement
     const newAttemptNumber = await getLastAttemptNumber();
+    console.log("--------");
+    console.log("New Attempt Number:", newAttemptNumber); // Debugging statement
+
     setAttemptNumber(newAttemptNumber);
 
     setQuestions([]);
