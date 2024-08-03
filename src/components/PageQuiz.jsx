@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import QuizQuestion from "./InterfaceQuizQuestion";
+import QuizResult from "./InterfaceQuizResult";
 import axios from "axios";
 import he from "he";
 
@@ -9,12 +10,10 @@ const PageQuiz = () => {
   const location = useLocation();
   const { quiz } = location.state;
   const [questions, setQuestions] = useState([]);
-
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(() => {
     const saved = localStorage.getItem(`quizQuestionIndex_${quiz.id}`);
     return saved ? parseInt(saved, 10) : 0;
   });
-
   const [score, setScore] = useState(() => {
     const saved = localStorage.getItem(`quizScore_${quiz.id}`);
     return saved ? parseInt(saved, 10) : 0;
@@ -23,7 +22,7 @@ const PageQuiz = () => {
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [answeredQuestions, setAnsweredQuestions] = useState(0);
 
   const fetchQuestions = async () => {
     try {
@@ -109,6 +108,8 @@ const PageQuiz = () => {
   }, [quizFinished, quiz.id]);
 
   const handleAnswer = (isCorrect) => {
+    setAnsweredQuestions((prev) => prev + 1);
+
     if (isCorrect) {
       setScore((prev) => {
         const newScore = prev + 1;
@@ -134,7 +135,7 @@ const PageQuiz = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
         <CircularProgress />
       </div>
     );
@@ -146,17 +147,12 @@ const PageQuiz = () => {
 
   if (quizFinished) {
     return (
-      <div className="text-center">
-        <h2 className="text-2xl font-bold mb-4">Quiz Finished!</h2>
-        <p className="text-lg">Correct Answers: {score}</p>
-        <p className="text-lg">Incorrect Answers: {questions.length - score}</p>
-        <button
-          onClick={() => navigate("/")}
-          className="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-lg mt-4"
-        >
-          Go Back
-        </button>
-      </div>
+      <QuizResult
+        score={score}
+        answeredQuestions={answeredQuestions}
+        totalQuestions={questions.length}
+        category={quiz.title}
+      />
     );
   }
 
@@ -167,31 +163,14 @@ const PageQuiz = () => {
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
-    <div className="quiz-container">
-      <h2 className="text-2xl font-bold mb-4">{currentQuestion.category}</h2>
-      <p className="text-lg mb-4">{currentQuestion.question}</p>
-      <div className="options-container">
-        {currentQuestion.incorrect_answers
-          .concat(currentQuestion.correct_answer)
-          .sort()
-          .map((answer) => (
-            <button
-              key={answer}
-              onClick={() =>
-                handleAnswer(answer === currentQuestion.correct_answer)
-              }
-              className="option-button"
-            >
-              {answer}
-            </button>
-          ))}
-      </div>
-      <div className="timer-container mt-4">
-        <p className="text-lg">
-          Time left: {Math.floor(timer / 60)}:
-          {(timer % 60).toString().padStart(2, "0")}
-        </p>
-      </div>
+    <div className="quiz-page-container">
+      <QuizQuestion
+        question={currentQuestion}
+        handleAnswer={handleAnswer}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        timer={timer}
+      />
     </div>
   );
 };
