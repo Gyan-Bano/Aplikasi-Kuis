@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
-import QuizConfirmationDialog from "./QuizConfirmationDialog";
+import QuizConfirmationDialog from "./DialogQuizConfirmation";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
@@ -28,6 +28,7 @@ const PageQuizList = () => {
           id: doc.id,
           ...doc.data(),
         }));
+        console.log(quizData)
         setQuizzes(quizData);
       } catch (error) {
         console.error("Error fetching quiz data:", error);
@@ -55,7 +56,7 @@ const PageQuizList = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-[calc(100vh-80px)]">
         <CircularProgress />
       </div>
     );
