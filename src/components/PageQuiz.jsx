@@ -36,7 +36,7 @@ const PageQuiz = () => {
     return <div>Error: {error}</div>;
   }
 
-  if (quizFinished) {
+  if (quizFinished || timer <= 0) {
     return (
       <QuizResult
         score={score}
@@ -49,7 +49,11 @@ const PageQuiz = () => {
   }
 
   if (questions.length === 0) {
-    return <div>No questions available.</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress />
+      </div>
+    );
   }
 
   return (

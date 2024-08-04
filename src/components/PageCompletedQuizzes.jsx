@@ -43,7 +43,7 @@ const PageCompletedQuizzes = () => {
     };
 
     fetchCompletedQuizzes();
-  }, [currentUser]);
+  }, [currentUser, userLoggedIn]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
@@ -80,35 +80,38 @@ const PageCompletedQuizzes = () => {
       </div>
 
       <div className="w-full space-y-4 py-4">
-        {filteredQuizzes.map((quiz) => (
-          <div
-            key={quiz.id}
-            className="bg-white text-gray-900 shadow-md rounded-lg p-4 flex flex-col items-center md:flex-row md:justify-between"
-          >
-            <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <div>
-                <h2 className="text-xl font-bold font-poppins">
-                  {quiz.quizTitle}
-                </h2>
-                <p className="text-sm">
-                  {new Date(quiz.lastUpdated.toDate()).toLocaleString()}
+        {filteredQuizzes.length > 0 ? (
+          filteredQuizzes.map((quiz) => (
+            <div
+              key={quiz.id}
+              className="bg-white text-gray-900 shadow-md rounded-lg p-4 flex flex-col items-center md:flex-row md:justify-between"
+            >
+              <div className="flex items-center space-x-4 mb-4 md:mb-0">
+                <div>
+                  <h2 className="text-xl font-bold font-poppins">
+                    {quiz.quizTitle}
+                  </h2>
+                  <p className="text-sm">
+                    {new Date(quiz.lastUpdated.toDate()).toLocaleString()}
+                  </p>
+                  <p className="text-sm">Quiz Completed</p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center md:items-end space-y-2">
+                <p className="text-gray-600 font-poppins">
+                  Total Questions Answered: {quiz.totalAnswersCount}
                 </p>
-                <p className="text-sm">Quiz Completed</p>
+                <p className="text-gray-600 font-poppins">
+                  Score: {quiz.score} / {quiz.totalAnswersCount}
+                </p>
               </div>
             </div>
-            <div className="flex flex-col items-center md:items-end space-y-2">
-              <p className="text-gray-600 font-poppins">
-                Total Questions Answered: {quiz.totalAnswersCount}
-              </p>
-              <p className="text-gray-600 font-poppins">
-                Score: {quiz.score} / {quiz.totalAnswersCount}
-              </p>
-              <p className="text-gray-600 font-poppins">
-                Attempt: {quiz.attemptNumber}
-              </p>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-gray-600 font-poppins text-center">
+            There are no completed quizzes yet.
+          </p>
+        )}
       </div>
     </div>
   );
