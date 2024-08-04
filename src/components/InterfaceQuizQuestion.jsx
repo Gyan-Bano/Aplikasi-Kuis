@@ -8,7 +8,6 @@ const QuizQuestion = ({
   timer,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-
   const handleOptionClick = (answer) => {
     setSelectedAnswer(answer);
     setTimeout(() => {
@@ -46,7 +45,7 @@ const QuizQuestion = ({
                       : "text-white bg-red-600 hover:bg-red-700"
                     : "text-gray-600 bg-gray-200 hover:bg-gray-300"
                 }`}
-              disabled={selectedAnswer !== null} 
+              disabled={selectedAnswer !== null}
             >
               {answer}
             </button>

@@ -36,9 +36,7 @@ const PageQuiz = () => {
       }));
       setQuestions(decodedQuestions);
       setError(null);
-    } catch (err) {
-      setError("Failed to fetch questions.");
-    } finally {
+    }  finally {
       setLoading(false);
     }
   }, [quiz.apiUrl]);
