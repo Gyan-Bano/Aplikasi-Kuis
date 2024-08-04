@@ -31,7 +31,7 @@ Ikuti langkah-langkah berikut untuk menjalankan aplikasi Quiz Trivia di lingkung
 Clone repositori dari GitHub ke komputer Anda:
 
 ```bash
-git clone https://github.com/username/quiz-trivia.git
+git clone https://github.com/Gyan-Bano/Aplikasi-Kuis.git
 ```
 
 ### 2. Masuk ke Direktori Proyek
@@ -39,7 +39,7 @@ git clone https://github.com/username/quiz-trivia.git
 Pindah ke direktori proyek yang baru saja Anda clone:
 
 ```bash
-cd quiz-trivia
+cd Aplikasi-Kuis
 ```
 
 ### 3. Instal Dependensi
