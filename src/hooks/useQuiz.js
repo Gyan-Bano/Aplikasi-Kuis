@@ -10,7 +10,7 @@ export const useQuiz = (quiz, currentUser) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [totalAnswersCount, setTotalAnswersCount] = useState(0);
-  const [timer, setTimer] = useState(10); // 10 minutes in seconds
+  const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
