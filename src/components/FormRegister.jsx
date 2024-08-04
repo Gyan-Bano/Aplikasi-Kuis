@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { doCreateUserWithEmailAndPassword, doSignOut } from "../firebase/auth";
 
 const RegisterForm = ({ onClose, onBackToLoginClick }) => {
+
+  // Mendefinisikan state untuk email, kata sandi, konfirmasi kata sandi, status registrasi, pesan error, dan navigasi.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -10,6 +12,7 @@ const RegisterForm = ({ onClose, onBackToLoginClick }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  // Menangani registrasi pengguna baru dan logout setelah registrasi berhasil.
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!isRegistering) {
@@ -33,6 +36,7 @@ const RegisterForm = ({ onClose, onBackToLoginClick }) => {
     }
   };
 
+  // Bagian ini merender tampilan form registrasi beserta tombol-tombol dan pesan error jika ada.
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md relative">

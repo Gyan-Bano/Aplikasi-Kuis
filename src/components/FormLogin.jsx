@@ -5,6 +5,7 @@ import { doSignInWithEmailAndPassword, doSignInWithGoogle } from "../firebase/au
 import { useAuth } from "../contexts/authContext";
 
 const LoginForm = ({ onClose, onRegisterClick }) => {
+  // Mendefinisikan state untuk email, kata sandi, status login, pesan error, dan navigasi.
   const { userLoggedIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -12,6 +13,7 @@ const LoginForm = ({ onClose, onRegisterClick }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  // Jika pengguna sudah login, navigasi ke halaman utama dan tutup form login.
   useEffect(() => {
     if (userLoggedIn) {
       navigate("/");
@@ -19,6 +21,7 @@ const LoginForm = ({ onClose, onRegisterClick }) => {
     }
   }, [userLoggedIn, navigate, onClose]);
 
+  // Menangani login dengan email dan kata sandi.
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!isSigningIn) {
@@ -36,6 +39,7 @@ const LoginForm = ({ onClose, onRegisterClick }) => {
     }
   };
 
+  // Menangani login dengan akun Google.
   const onGoogleSignIn = async (e) => {
     e.preventDefault();
     if (!isSigningIn) {
@@ -53,6 +57,7 @@ const LoginForm = ({ onClose, onRegisterClick }) => {
     }
   };
 
+  // Bagian ini merender tampilan form login beserta tombol-tombol dan pesan error jika ada.
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md relative">

@@ -1,6 +1,9 @@
+// Mengimpor React untuk membuat komponen dialog konfirmasi.
 import React from "react";
 
+// Komponen dialog konfirmasi untuk memverifikasi tindakan pengguna sebelum memulai kuis.
 const QuizConfirmationDialog = ({ open, onClose, onConfirm, quiz }) => {
+  // Mengembalikan null jika dialog tidak terbuka atau data kuis tidak ada.
   if (!open || !quiz) return null;
 
   return (

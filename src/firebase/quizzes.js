@@ -1,6 +1,10 @@
+// Mengimpor objek db dari file firebase.js yang berisi konfigurasi dan instance Firestore.
+// Mengimpor fungsi collection dan addDoc dari Firebase Firestore untuk mengakses koleksi dan menambahkan dokumen.
+
 import { db } from "./firebase.js";
 import { collection, addDoc } from "firebase/firestore";
 
+// Mendefinisikan array quizzes yang berisi objek-objek kuis.
 const quizzes = [
   {
     title: "Sports Quiz",
@@ -24,6 +28,7 @@ const quizzes = [
   },
 ];
 
+// Fungsi uploadQuizzes bertugas untuk meng-upload data kuis ke Firebase Firestore.
 const uploadQuizzes = async () => {
   const quizzesCollection = collection(db, "quizzes");
   for (const quiz of quizzes) {
@@ -36,4 +41,5 @@ const uploadQuizzes = async () => {
   }
 };
 
+// Menjalankan Fungsi
 uploadQuizzes();

@@ -1,3 +1,4 @@
+// Mengimpor React, hooks, dan modul tambahan yang diperlukan untuk komponen.
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -7,6 +8,7 @@ import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
 import historyIcon from "../assets/history-7614.svg";
 
+// Menyimpan state untuk kuis, loading, dialog konfirmasi, kuis yang dipilih, dan query pencarian.
 const PageQuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,7 @@ const PageQuizList = () => {
   const { userLoggedIn } = useAuth();
   const navigate = useNavigate();
 
+  // Mengambil data kuis dari Firestore jika pengguna terautentikasi dan memperbarui state kuis.
   useEffect(() => {
     const fetchQuizzes = async () => {
       if (!userLoggedIn) {
@@ -42,28 +45,34 @@ const PageQuizList = () => {
     fetchQuizzes();
   }, [userLoggedIn]);
 
+  // Menangani aksi memulai kuis dengan membuka dialog konfirmasi.
   const handleStartQuiz = (quiz) => {
     setSelectedQuiz(quiz);
     setConfirmationOpen(true);
   };
 
+  // Menutup dialog konfirmasi dan menavigasi ke halaman kuis yang dipilih.
   const handleConfirm = () => {
     setConfirmationOpen(false);
     navigate(`/quiz/${selectedQuiz.id}`, { state: { quiz: selectedQuiz } });
   };
 
+  // Menutup dialog konfirmasi.
   const handleClose = () => {
     setConfirmationOpen(false);
   };
 
+  // Mengubah nilai query pencarian saat input pencarian diubah.
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  // Menyaring daftar kuis berdasarkan query pencarian dan menampilkan UI.
   const filteredQuizzes = quizzes.filter((quiz) =>
     quiz.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Jika masih loading, tampilkan indikator loading.
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-80px)]">

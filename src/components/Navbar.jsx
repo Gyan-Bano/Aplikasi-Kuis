@@ -7,6 +7,7 @@ import LoginForm from "./FormLogin";
 import RegisterForm from "./FormRegister";
 
 const Navbar = () => {
+  // Mendefinisikan state untuk status login, tampilan form login, tampilan form registrasi, dan status menu.
   const { userLoggedIn } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,6 +15,7 @@ const Navbar = () => {
   const [isRegisterFormVisible, setRegisterFormVisible] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
 
+  // Menangani klik tombol autentikasi (login/logout).
   const handleAuthClick = async () => {
     if (userLoggedIn) {
       try {
@@ -25,10 +27,11 @@ const Navbar = () => {
     } else {
       setLoginFormVisible(true);
       setRegisterFormVisible(false);
-      setMenuOpen(false); // Close the menu on mobile when opening the login form
+      setMenuOpen(false); // Menutup menu pada tampilan mobile saat membuka form login
     }
   };
 
+// Menangani navigasi dan tampilan form.
   const handleCloseLoginForm = () => {
     setLoginFormVisible(false);
   };
@@ -44,23 +47,24 @@ const Navbar = () => {
 
   const handleLogoClick = () => {
     navigate("/");
-    setMenuOpen(false); // Close the menu on mobile when navigating
+    setMenuOpen(false);
   };
 
   const handleQuizListClick = () => {
     navigate("/quiz-list");
-    setMenuOpen(false); // Close the menu on mobile when navigating
+    setMenuOpen(false); 
   };
 
   const handleCompletedQuizzesClick = () => {
     navigate("/completed-quizzes");
-    setMenuOpen(false); // Close the menu on mobile when navigating
+    setMenuOpen(false); 
   };
 
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
   };
 
+  // Bagian ini merender tampilan navbar beserta tombol-tombol dan form login/registrasi jika diperlukan.
   return (
     <nav className="bg-white p-4">
       <div className="container mx-auto flex justify-between items-center">

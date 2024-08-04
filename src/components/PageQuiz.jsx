@@ -7,10 +7,14 @@ import QuizResult from "./InterfaceQuizResult";
 import { useQuiz } from "../hooks/useQuiz";
 
 const PageQuiz = () => {
+  // Mengambil objek lokasi saat ini dari router
   const location = useLocation();
+  // Mengambil data kuis dari state lokasi
   const { quiz } = location.state;
+  // Mengambil informasi pengguna dan status login dari context
   const { currentUser, userLoggedIn } = useAuth();
 
+  // Menggunakan custom hook useQuiz untuk mengelola logika kuis
   const {
     questions,
     currentQuestionIndex,
@@ -24,6 +28,7 @@ const PageQuiz = () => {
     startNewAttempt,
   } = useQuiz(quiz, userLoggedIn ? currentUser : null);
 
+  // Jika masih loading, tampilkan indikator loading.
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -36,6 +41,7 @@ const PageQuiz = () => {
     return <div>Error: {error}</div>;
   }
 
+  // Menampilkan hasil kuis jika kuis selesai atau timer habis
   if (quizFinished || timer <= 0) {
     return (
       <QuizResult
@@ -56,6 +62,7 @@ const PageQuiz = () => {
     );
   }
 
+  // Menampilkan pertanyaan kuis
   return (
     <QuizQuestion
       question={questions[currentQuestionIndex]}

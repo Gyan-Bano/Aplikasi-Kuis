@@ -1,11 +1,12 @@
+// Mengimpor React, hooks, dan modul tambahan yang diperlukan untuk komponen.
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
-import historyIcon from "../assets/history-7614.svg";
 
+// Menyimpan state untuk kuis yang telah selesai, loading, dan query pencarian.
 const PageCompletedQuizzes = () => {
   const [completedQuizzes, setCompletedQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,6 +14,7 @@ const PageCompletedQuizzes = () => {
   const { currentUser, userLoggedIn } = useAuth();
   const navigate = useNavigate();
 
+  // Mengambil data kuis yang telah selesai dari Firestore jika pengguna terautentikasi.
   useEffect(() => {
     const fetchCompletedQuizzes = async () => {
       if (!userLoggedIn || !currentUser.uid) {
@@ -45,14 +47,17 @@ const PageCompletedQuizzes = () => {
     fetchCompletedQuizzes();
   }, [currentUser, userLoggedIn]);
 
+  // Menangani perubahan nilai input pencarian.
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
+  // Menyaring daftar kuis yang telah selesai berdasarkan query pencarian.
   const filteredQuizzes = completedQuizzes.filter((quiz) =>
     quiz.quizTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Jika masih loading, tampilkan indikator loading.
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-80px)]">

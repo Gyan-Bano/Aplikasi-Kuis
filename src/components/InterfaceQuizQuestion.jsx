@@ -8,12 +8,15 @@ const QuizQuestion = ({
   timer,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  // Fungsi untuk menangani klik pada opsi jawaban
   const handleOptionClick = (answer) => {
     setSelectedAnswer(answer);
     setTimeout(() => {
+      // Memanggil handleAnswer dengan hasil evaluasi apakah jawaban benar
       handleAnswer(answer === question.correct_answer);
       setSelectedAnswer(null);
-    }, 1000);
+    }, 1000); // Menunggu 1 detik sebelum melanjutkan
   };
 
   return (

@@ -13,7 +13,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
-// Create a wrapper component for PageQuiz
+// Membuat komponen pembungkus untuk halaman PageQuiz yang menerima state quiz dari lokasi saat ini
 const PageQuizWrapper = () => {
   const location = useLocation();
   const quiz = location.state?.quiz;

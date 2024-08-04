@@ -6,11 +6,13 @@ import LoginForm from "./FormLogin";
 import CircularProgress from "@mui/material/CircularProgress";
 
 const PageHome = () => {
+  // Mendefinisikan state untuk status login, tampilan form login, status loading, dan navigasi.
   const { userLoggedIn, currentUser } = useAuth();
   const [isLoginFormVisible, setLoginFormVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Mengatur timer untuk menampilkan indikator loading selama 500ms sebelum menampilkan konten halaman utama.
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -19,6 +21,7 @@ const PageHome = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Menangani klik tombol "Play Now". Jika pengguna belum login, form login akan ditampilkan. Jika pengguna sudah login, akan diarahkan ke daftar kuis.
   const handlePlayNowClick = () => {
     if (!userLoggedIn) {
       setLoginFormVisible(true);
@@ -27,12 +30,15 @@ const PageHome = () => {
     }
   };
 
+  // Menangani penutupan form login.
   const handleCloseLoginForm = () => {
     setLoginFormVisible(false);
   };
 
+  // Mendapatkan nama pengguna dari email yang terdaftar.
   const displayName = currentUser?.email.split("@")[0];
 
+  // Jika masih loading, tampilkan indikator loading.
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-80px)]">
