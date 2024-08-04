@@ -5,6 +5,7 @@ import QuizConfirmationDialog from "./DialogQuizConfirmation";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { useAuth } from "../contexts/authContext";
+import historyIcon from "../assets/history-7614.svg";
 
 const PageQuizList = () => {
   const [quizzes, setQuizzes] = useState([]);
@@ -73,9 +74,18 @@ const PageQuizList = () => {
 
   return (
     <div className="min-h-0 bg-white flex flex-col items-center py-8 px-16">
-      <h1 className="text-4xl font-bold font-poppins text-gray-900 mb-4">
-        Quiz List
-      </h1>
+      <div className="flex justify-between items-center w-full mb-4">
+        <h1 className="text-4xl font-bold font-poppins text-gray-900 mx-auto">
+          Quiz List
+        </h1>
+        <img
+          src={historyIcon}
+          alt="History Icon"
+          className="h-8 w-8 cursor-pointer"
+          onClick={() => navigate("/completed-quizzes")}
+        />
+      </div>
+
       <div className="w-full max-w-md mb-8">
         <input
           type="text"

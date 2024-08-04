@@ -5,6 +5,7 @@ import RegisterForm from "./components/FormRegister";
 import PageHome from "./components/PageHome";
 import PageQuizList from "./components/PageQuizList";
 import PageQuiz from "./components/PageQuiz";
+import PageCompletedQuizzes from "./components/PageCompletedQuizzes"; 
 import {
   BrowserRouter as Router,
   Route,
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/quiz-list" element={<PageQuizList />} />
           <Route path="/quiz/:id" element={<PageQuizWrapper />} />
+          <Route path="/completed-quizzes" element={<PageCompletedQuizzes />} />
           <Route path="/" element={<PageHome />} />
         </Routes>
       </div>
