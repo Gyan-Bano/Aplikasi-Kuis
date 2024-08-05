@@ -13,7 +13,7 @@ export const useQuiz = (quiz, currentUser) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [totalAnswersCount, setTotalAnswersCount] = useState(0);
-  const [timer, setTimer] = useState(10); // 10 menit dalam detik
+  const [timer, setTimer] = useState(600); // 10 menit dalam detik
   const [quizFinished, setQuizFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
